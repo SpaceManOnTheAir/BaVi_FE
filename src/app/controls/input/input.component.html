@@ -1,0 +1,35 @@
+<div class="form-group row">
+  <label class="col-form-label" [ngClass]="colClass">{{label}}</label>
+  <div class="col-sm">
+    <input *ngIf="rows ===1" type="text" class="form-control" 
+      [attr.maxlength]="maxlength" 
+      [attr.placeholder]="placeholder"
+      [attr.type]="type" 
+      [(ngModel)]="ngModel" 
+      [formControl]="formControl"
+      [ngClass]="{'is-invalid': formControl.invalid && formControl.touched}"
+      >
+
+    <textarea *ngIf="rows > 1" type="text" class="form-control" 
+      [attr.maxlength]="maxlength" 
+      [attr.placeholder]="placeholder"
+      [attr.type]="rows" 
+      [(ngModel)]="ngModel" 
+      [formControl]="formControl"
+      [ngClass]="{'is-invalid': formControl.invalid && formControl.touched}"></textarea>
+
+
+    <div *ngIf="requiredError && formControl.errors?.required" class="invalid-feedback">
+      {{requiredErrorMessage}}
+    </div>
+
+    <div *ngIf="requiredError && formControl.errors?.minlength" class="invalid-feedback">
+      {{minlengthErrorMessage}}
+    </div>
+
+    <div *ngIf="requiredError && formControl.errors?.email" class="invalid-feedback">
+      {{emailRequiredErrorMessage}}
+    </div>
+
+  </div>
+</div>

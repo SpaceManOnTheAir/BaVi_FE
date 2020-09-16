@@ -1,0 +1,196 @@
+<div class="container mt-4">
+  <div class="card border-primary bt-5">
+    <div class="card-header">
+      <div class="row">
+        <div class="col-sm-2">
+          <h3 class="card- title">Student <small>list</small></h3>
+        </div>
+          <div class="col-sm-3">
+            <select class="custom-select mr-sm-2 " 
+            [(ngModel)]= "selectedMajor" 
+            name="selectedMajor"
+            (ngModelChange)="selectedMajorChange()"
+             >
+              <!-- <option selected>Choose...</option> -->
+              <option value="0">--All--</option>
+              <option *ngFor="let major of majors" [value]="major.id">{{major.name}}</option>
+            </select>
+          </div>
+          <div class="col-sm"></div>
+       
+        <div class="col-auto">
+          <button (click)="showModal(0)" class="btn btn-success"><i class="fas fa-plus"></i> Add</button>
+        </div>
+      </div>
+      <!-- <a [routerLink]="['/student', 0]" class="btn btn-success"><i class="fas fa-plus"></i> Add</a> -->
+    </div>
+    <div class="card-body">
+      <table datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger"
+        class="table table-bordered table-hover table-striped">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Student ID</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Major</th>
+            <th>Phone</th>
+            <th>Email</th>
+            <th>Gender</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let student of students">
+            <td></td>
+            <td>{{student.stuId}}</td>
+            <td>{{student.firstName | uppercase}}</td>
+            <td>{{student.lastName}}</td>
+            <td>{{getMajorName(student.majorId)}}</td>
+            <td>{{student.phone}}</td>
+            <td>{{student.email}}</td>
+            <td>
+              <i *ngIf="student.gender" class="fas fa-male text-primary"></i>
+              <i *ngIf="!student.gender" class="fas fa-female text-warning"></i>
+            </td>
+            <td>
+              <!-- <a [routerLink]="['/student', student.id]"><i class="fas fa-edit text-success"></i></a> -->
+              <span (click)="showModal(student.id)" class="pointer"><i class="fas fa-edit text-success"></i></span>
+              <a href="#" (click)="doDelete($event, student.id)" class="ml-1"><i
+                  class="fas fa-trash-alt text-danger"></i></a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal -->
+<div bsModal #editModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="dialog-child-name">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 id="dialog-child-name" class="modal-title pull-left">{{action}} Student</h4>
+        <button type="button" class="close pull-right" aria-label="Close" (click)="hideModal()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="form">
+          <!-- Major Selected -->
+          <div class="form-group row">
+            <label class="col-sm-3 col-form-label required">Major ID</label>
+            <div class="col-sm-9">
+              <select class="custom-select" 
+              [(ngModel)]= "aStudent.majorId" 
+              formControlName="studentMajor"
+              [ngClass]="{'is-invalid': form.controls['studentMajor'].invalid && form.controls['studentMajor'].touched}">
+                <option value="0">--All--</option>
+                <option *ngFor="let major of majors" [value]="major.id">{{major.name}}</option>
+              </select>
+              <div *ngIf="form.controls['studentMajor'].errors?.required" class="invalid-feedback">
+                Major ID is required
+              </div>
+            </div>
+          </div>
+ 
+          <!-- Student Code -->
+          <app-input [labelsize]="3" [type]="'text'" [label]="'Student Id'" [maxlength]="20" [placeholder]="'ID value'"
+            [(ngModel)]="aStudent.stuId" 
+            [formControl]="form.controls['studentStuID']" 
+            [requiredError]="true"
+            [requiredErrorMessage]="'Pls enter student ID .'"
+            [minlengthError]="form.controls['studentStuID'].errors?.minlength"
+            [minlengthErrorMessage]="'At least 3 characters'" 
+            [enabled]="aStudent.id === 0" 
+            ngDefaultControl>
+          </app-input>
+
+          <!-- First name -->
+          <app-input [labelsize]="3" [type]="'text'" [label]="'First Name'" [maxlength]="20"
+            [placeholder]="'First Name value'" 
+            [(ngModel)]="aStudent.firstName"
+            [formControl]="form.controls['studentFirstName']" 
+            [requiredError]="true"
+            [requiredErrorMessage]="'Pls enter First Name.'"
+            [minlengthError]="form.controls['studentFirstName'].errors?.minlength"
+            [minlengthErrorMessage]="'At least 3 characters'" 
+            ngDefaultControl></app-input>
+            
+          <!-- Last name -->
+          <app-input [labelsize]="3" [type]="'text'" [label]="'Last Name'" [maxlength]="20"
+            [placeholder]="'Last Name value'" 
+            [(ngModel)]="aStudent.lastName"
+            [formControl]="form.controls['studentLastName']" 
+            [requiredError]="true"
+            [requiredErrorMessage]="'Pls enter Last Name.'"
+            [minlengthError]="form.controls['studentLastName'].errors?.minlength"
+            [minlengthErrorMessage]="'At least 3 characters'" 
+            ngDefaultControl></app-input>
+
+          <!-- Phone -->
+          <app-input [labelsize]="3" [type]="'text'" [label]="'Phone'" [maxlength]="20" [placeholder]="'Phone number'"
+            [(ngModel)]="aStudent.phone" 
+            [formControl]="form.controls['studentPhone']" 
+            ngDefaultControl></app-input>
+
+          <!-- Email -->
+          <app-input [labelsize]="3" [type]="'text'" [label]="'Email'" [maxlength]="20" [placeholder]="'Email value'"
+            [(ngModel)]="aStudent.email" 
+            [formControl]="form.controls['studentEmail']" 
+            [requiredError]="true"
+            [requiredErrorMessage]="'Pls enter Email.'"
+            [emailRequiredError]="form.controls['studentEmail'].errors?.email"
+            [emailRequiredErrorMessage]="'Valid email'" 
+            ngDefaultControl></app-input>
+          <!-- Major -->
+
+
+          <!-- Gender -->
+          <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Gender</label>
+            <div class="col-sm-9">
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" [(ngModel)]="aStudent.gender" [value]=1
+                  [ngClass]="{'is-invalid': form.controls['studentGender'].touched}" formControlName="studentGender">
+                <label class="form-check-label" for="inlineRadio1">Male</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" [(ngModel)]="aStudent.gender" [value]=0
+                  [ngClass]="{'is-invalid':  form.controls['studentGender'].touched}" formControlName="studentGender">
+                <label class="form-check-label" for="inlineRadio2">Female</label>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" [disabled]="form.invalid" (click)="save()">Save</button>
+        <button class="btn btn-secondary" (click)="hideModal()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- <div class="form-group row">
+            <label class="col-sm-3 col-form-label required">Student Id</label>
+            <div class="col-sm-9">
+              <input type="text" class="form-control" *ngIf="aStudent.id ===0"
+                [ngClass]="{'is-invalid': form.controls['studentStuID'].invalid && form.controls['studentStuID'].touched}"
+                [(ngModel)]="aStudent.stuId" formControlName="studentStuID">
+              <input type="text" readonly *ngIf="aStudent.id>0" class="form-control "
+                [ngClass]="{'is-invalid': form.controls['studentStuID'].invalid && form.controls['studentStuID'].touched}"
+                [(ngModel)]="aStudent.stuId" formControlName="studentStuID">
+              <div *ngIf="form.controls['studentStuID'].errors?.minlength" class="invalid-feedback">
+                id is too short
+              </div>
+
+              <div *ngIf="form.controls['studentStuID'].errors?.required" class="invalid-feedback">
+                please input student ID
+              </div>
+            </div>
+
+          </div> -->
